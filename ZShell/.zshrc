@@ -137,6 +137,7 @@ unset __conda_setup
 
 # export NEMU_HOME=/home/lap/app/ICS/ics2023/nemu
 # export AM_HOME=/home/lap/app/ICS/ics2023/abstract-machine
+alias vim="lvim"
 export PATH=/usr/local/cuda-12.1/bin${PATH:+:${PATH}}
 export LD_LIBRARY_PATH=/usr/local/cuda-12.1/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/lib/pkgconfig
