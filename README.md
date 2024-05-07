@@ -10,7 +10,7 @@
 -->
 # private-neovim-config
 
-个人neovim配置
+一些个人软件配置
 
 ## lunarNeovm
 
