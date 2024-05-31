@@ -1,6 +1,10 @@
 -- Read the docs: https://www.lunarvim.org/docs/configuration
 -- Video Tutorials: https://www.youtube.com/watch?v=sFA9kX-Ud_c&list=PLhoH5vyxr6QqGu0i7tt_XoVK9v-KvZ3m6
 -- Forum: https://www.reddit.com/r/lunarvim/
+-- Discord: https://discord.com/invite/Xb9B4Ny
+-- Read the docs: https://www.lunarvim.org/docs/configuration
+-- Video Tutorials: https://www.youtube.com/watch?v=sFA9kX-Ud_c&list=PLhoH5vyxr6QqGu0i7tt_XoVK9v-KvZ3m6
+-- Forum: https://www.reddit.com/r/lunarvim/
 -- Discord: https://discord.com/invite/Xb
 lvim.transparent_window = true
 lvim.builtin.lualine.options.theme = "onedark"
@@ -29,26 +33,42 @@ vim.api.nvim_create_autocmd({ "FileType" }, {
     end,
 })
 
-vim.api.nvim_create_autocmd("BufWritePre", {
-    pattern = "*",
-    callback = function(args)
-        require("conform").format({ bufnr = args.buf })
-    end,
-})
+-- vim.api.nvim_create_autocmd("BufWritePre", {
+--     pattern = "*",
+--     callback = function(args)
+--         require("conform").format({ bufnr = args.buf })
+--     end,
+-- })
 
-vim.api.nvim_create_user_command("Format", function(args)
-    local range = nil
-    if args.count ~= -1 then
-        local end_line = vim.api.nvim_buf_get_lines(0, args.line2 - 1, args.line2, true)[1]
-        range = {
-            start = { args.line1, 0 },
-            ["end"] = { args.line2, end_line:len() },
-        }
-    end
-    require("conform").format({ async = true, lsp_fallback = true, range = range })
-end, { range = true })
+-- vim.api.nvim_create_user_command("Format", function(args)
+--     local range = nil
+--     if args.count ~= -1 then
+--         local end_line = vim.api.nvim_buf_get_lines(0, args.line2 - 1, args.line2, true)[1]
+--         range = {
+--             start = { args.line1, 0 },
+--             ["end"] = { args.line2, end_line:len() },
+--         }
+--     end
+--     require("conform").format({ async = true, lsp_fallback = true, range = range })
+-- end, { range = true })
 
 lvim.plugins = {
+    {
+        "stevearc/conform.nvim",
+        optional = true,
+        opts = {
+            formatters_by_ft = {
+                ["c"] = { "clang_format" },
+                ["cpp"] = { "clang_format" },
+                ["c++"] = { "clang_format" },
+            },
+            formatters = {
+                --clang-format = {
+                -- prepend_args = {"-style=google"},
+                --},
+            },
+        },
+    },
     {
         "simrat39/rust-tools.nvim",
         config = function()
@@ -153,22 +173,6 @@ lvim.plugins = {
             { '<leader>vc', '<cmd>VenvSelectCached<cr>' },
         },
     },
-    {
-        "stevearc/conform.nvim",
-        optional = true,
-        opts = {
-            formatters_by_ft = {
-                ["c"] = { "clang_format" },
-                ["cpp"] = { "clang_format" },
-                ["c++"] = { "clang_format" },
-            },
-            formatters = {
-                --clang-format = {
-                -- prepend_args = {"-style=google"},
-                --},
-            },
-        },
-    }
 }
 
 --透明度
