@@ -12,17 +12,32 @@ lvim.colorscheme = "tokyonight-moon"
 vim.opt.guifont = "FiraCode Nerd Font:h16"
 vim.opt.tabstop = 4
 lvim.format_on_save = true
-lvim.keys.normal_mode["<M-v>"] = ":vsplit<CR>"
-lvim.keys.normal_mode["<M-s>"] = ":split<CR>"
-lvim.keys.normal_mode["<M-c>"] = ":close<CR>"
-lvim.keys.normal_mode["<leader>tt"] = ":BufferLinePick<CR>"
+vim.keymap.set({ "n", "v" }, "<M-v>", ":vsplit<cr>")
+vim.keymap.set({ "n", "v" }, "<M-h>", ":split<cr>")
+vim.keymap.set({ "n", "v" }, "<M-c>", ":clos<cr>")
+lvim.keys.normal_mode["<leader>rr"] = ":RustRun<CR>"
+lvim.keys.normal_mode["<leader>rd"] = ":RustDebuggables<CR>"
+lvim.keys.normal_mode["<leader>tf"] = ":TodoLocList<CR>"
 vim.opt.tabstop = 4
+lvim.keys.normal_mode["<leader>tt"] = ":BufferLinePick<CR>"
 vim.opt.softtabstop = 4
 vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
+vim.keymap.set({ "n", "v" }, "<Space>ml", function()
+    require("noice").cmd("last")
+end)
+vim.keymap.set({ "n", "v", }, "<Space>ma", function()
+    require("noice").cmd("all")
+end)
+vim.keymap.set("n", "<F10>", function()
+    require 'dap'.step_into()
+end)
+vim.keymap.set("n", "<F5>", function()
+    require 'dap'.step_over()
+end)
 lvim.builtin.indentlines.active = true
 
-vim.api.nvim_create_autocmd({ "FileType" }, {
+vim.api.nvim_create_autocmd({ "filetype" }, {
     pattern = { "c", "cpp", "md", "txt", "c.snippets", "cpp.snippets" },
     callback = function()
         vim.b.autoformat = true
@@ -33,14 +48,14 @@ vim.api.nvim_create_autocmd({ "FileType" }, {
     end,
 })
 
--- vim.api.nvim_create_autocmd("BufWritePre", {
+-- vim.api.nvim_create_autocmd("bufwritepre", {
 --     pattern = "*",
 --     callback = function(args)
 --         require("conform").format({ bufnr = args.buf })
 --     end,
 -- })
 
--- vim.api.nvim_create_user_command("Format", function(args)
+-- vim.api.nvim_create_user_command("format", function(args)
 --     local range = nil
 --     if args.count ~= -1 then
 --         local end_line = vim.api.nvim_buf_get_lines(0, args.line2 - 1, args.line2, true)[1]
@@ -119,10 +134,10 @@ lvim.plugins = {
                     },
                 },
             }
-            local extension_path = vim.fn.expand "~/" .. ".vscode/extensions/vadimcn.vscode-lldb-1.7.3/"
+            local extension_path = vim.fn.expand "~/" .. ".local/share/nvim/mason/packages/"
 
-            local codelldb_path = extension_path .. "adapter/codelldb"
-            local liblldb_path = extension_path .. "lldb/lib/liblldb.dylib"
+            local codelldb_path = extension_path .. "codelldb/extension/adapter/codelldb"
+            local liblldb_path = extension_path .. "codelldb/extension/lldb/lib/liblldb.so"
 
             opts.dap = {
                 adapter = require("rust-tools.dap").get_codelldb_adapter(codelldb_path, liblldb_path),
@@ -173,15 +188,132 @@ lvim.plugins = {
             { '<leader>vc', '<cmd>VenvSelectCached<cr>' },
         },
     },
+    {
+        "github/copilot.vim",
+    },
+    {
+        "folke/todo-comments.nvim",
+        dependencies = { "nvim-lua/plenary.nvim" },
+        opts = {
+            -- your configuration comes here
+            -- or leave it empty to use the default settings
+            -- refer to the configuration section below
+            sign_priority = 3,
+            keywords = {
+                FIX = {
+                    alt = { "FIXME", "BUG", "fix" },
+                },
+                TODO = {
+                    alt = { "todo" },
+                },
+                WARN = {
+                    alt = { "warn" },
+                },
+                NOTE = {
+                    alt = { "note" },
+                },
+                TEST = {
+                    icon = "𐰬",
+                    alt = { "test" },
+                },
+            },
+            highlight = {
+                keyword = "wide_fg",
+                after = "",
+            }
+        }
+    },
+    {
+        "folke/noice.nvim",
+        event = "VeryLazy",
+        opts = {
+            -- add any options here
+        },
+        dependencies = {
+            -- if you lazy-load any plugin below, make sure to add proper `module="..."` entries
+            "MunifTanjim/nui.nvim",
+            -- OPTIONAL:
+            --   `nvim-notify` is only needed, if you want to use the notification view.
+            --   If not available, we use `mini` as the fallback
+            "rcarriga/nvim-notify",
+        },
+    },
+    {
+        "folke/trouble.nvim",
+        opts = {
+            modes = {
+                preview_float = {
+                    focus = true,
+                    auto_close = true,
+                    mode = "diagnostics",
+                    preview = {
+                        type = "float",
+                        relative = "editor",
+                        border = "rounded",
+                        title = "Preview",
+                        title_pos = "center",
+                        position = { 2, 0.3 },
+                        size = { width = 0.7, height = 0.3 },
+                        zindex = 200,
+                    },
+                },
+
+                symbol_float = {
+                    focus = true,
+                    auto_close = true,
+                    mode = "symbols",
+                    preview = {
+                        type = "float",
+                        relative = "editor",
+                        border = "rounded",
+                        title = "Preview",
+                        title_pos = "center",
+                        position = { 2, 0.3 },
+                        size = { width = 0.7, height = 0.3 },
+                        zindex = 200,
+                    },
+                }
+            },
+        },
+        cmd = "Trouble",
+        keys = {
+            {
+                "<leader>ta",
+                "<cmd>Trouble preview_float<cr>",
+                desc = "Diagnostics (Trouble)",
+            },
+            {
+                "<leader>td",
+                "<cmd>Trouble preview_float filter.buf=0<cr>",
+                desc = "Buffer Diagnostics (Trouble)",
+            },
+            {
+                "<leader>ts",
+                "<cmd>Trouble symbol_float<cr>",
+                desc = "Symbols (Trouble)",
+            },
+            {
+                "<leader>cl",
+                "<cmd>Trouble lsp toggle focus=false win.position=right<cr>",
+                desc = "LSP Definitions / references / ... (Trouble)",
+            },
+            {
+                "<leader>xL",
+                "<cmd>Trouble loclist toggle<cr>",
+                desc = "Location List (Trouble)",
+            },
+        },
+    }
 }
+
 
 --透明度
 vim.g.neovide_transparency = 0.9
 -- cursor特效
 vim.g.neovide_cursor_vfx_mode = "railgun"
 vim.g.neovide_cursor_vfx_particle_density = 50.0
--- vim.g.neovide_cursor_vfx_particle_phase = 1.5
--- vim.g.neovide_cursor_vfx_mode = "ripple"
+vim.g.neovide_cursor_vfx_particle_phase = 1.5
+vim.g.neovide_cursor_vfx_mode = "ripple"
 
 -- 抗锯齿
 vim.g.neovide_cursor_antialiasing = true
