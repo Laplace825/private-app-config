@@ -7,31 +7,35 @@
 -- Forum: https://www.reddit.com/r/lunarvim/
 -- Discord: https://discord.com/invite/Xb
 lvim.transparent_window = true
+-- lvim.builtin.lualine.options.theme = "tokyonight"
 lvim.colorscheme = "tokyonight-moon"
-vim.opt.guifont = "FiraCode Nerd Font:h16"
+vim.opt.guifont = "FiraCode Nerd Font:h14"
 vim.opt.tabstop = 4
 lvim.format_on_save = true
 
 vim.keymap.set({ "n", "v" }, "<M-v>", ":vsplit<cr>")
 vim.keymap.set({ "n", "v" }, "<M-h>", ":split<cr>")
-vim.keymap.set({ "n", "v" }, "<M-c>", ":clos<cr>")
+vim.keymap.set({ "n", "v" }, "<M-c>", ":close<cr>")
+vim.keymap.set({ "n", "v" }, "U", "<c-r>")
 
 -- @note: rust 运行调试
-lvim.keys.normal_mode["<leader>rr"] = ":RustRun<CR>"
-lvim.keys.normal_mode["<leader>rd"] = ":RustDebuggables<CR>"
+lvim.keys.normal_mode["<TAB>rr"] = ":RustRun<CR>"
+lvim.keys.normal_mode["<TAB>rd"] = ":RustDebuggables<CR>"
+lvim.keys.normal_mode['<TAB>rl'] = ":RustRunnables<CR>"
 
-lvim.keys.normal_mode["<leader>tf"] = ":Trouble todo_float<CR>"
-lvim.keys.normal_mode["<leader>tt"] = ":BufferLinePick<CR>"
+--@note: go 运行调试
+lvim.keys.normal_mode["<TAB>gr"] = ":GoRun<CR>"
+lvim.keys.normal_mode["<TAB>gd"] = ":GoDebug<CR>"
+lvim.keys.normal_mode["<TAB>gs"] = ":GoStop<CR>"
+
+lvim.keys.normal_mode["<leader>td"] = ":Trouble todo_float<CR>"
 
 vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
 vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
-vim.keymap.set({ "n", "v" }, "<Space>ml", function()
-    require("noice").cmd("last")
-end)
-vim.keymap.set({ "n", "v", }, "<Space>ma", function()
-    require("noice").cmd("all")
+vim.keymap.set({ "n", "v" }, "<Space>nt", function()
+    require("noice").cmd("telescope")
 end)
 vim.keymap.set("n", "<F4>", function()
     require 'dap'.step_into()
@@ -68,6 +72,21 @@ lvim.plugins = {
                 --},
             },
         },
+    },
+    {
+        "ray-x/go.nvim",
+        dependencies = { -- optional packages
+            "ray-x/guihua.lua",
+            "neovim/nvim-lspconfig",
+            "nvim-treesitter/nvim-treesitter",
+        },
+        config = function()
+            require("go").setup()
+        end,
+        event = { "CmdlineEnter" },
+        ft = { "go", 'gomod' },
+        -- if you need to install/update all binaries
+        build = ':lua require("go.install").update_all_sync()'
     },
     {
         -- @note: 需要用mason安装codelldb
@@ -164,6 +183,7 @@ lvim.plugins = {
                 auto_refresh = true,
                 anaconda_base_path = "/home/lap/anaconda3",
                 anaconda_envs_path = "/home/lap/anaconda3/envs",
+                stay_on_this_version = true,
             }
         end,
         event = 'VeryLazy', -- Optional: needed only if you want to type `:VenvSelect` without a keymapping
@@ -239,7 +259,7 @@ lvim.plugins = {
                         title = "Preview",
                         title_pos = "center",
                         position = { 2, 0.3 },
-                        size = { width = 0.7, height = 0.3 },
+                        size = { width = 0.5, height = 0.3 },
                         zindex = 200,
                     },
                 },
@@ -255,7 +275,7 @@ lvim.plugins = {
                         title = "Preview",
                         title_pos = "center",
                         position = { 2, 0.3 },
-                        size = { width = 0.7, height = 0.3 },
+                        size = { width = 0.5, height = 0.3 },
                         zindex = 200,
                     },
                 },
@@ -271,7 +291,7 @@ lvim.plugins = {
                         title = "Preview",
                         title_pos = "center",
                         position = { 2, 0.3 },
-                        size = { width = 0.7, height = 0.3 },
+                        size = { width = 0.5, height = 0.3 },
                         zindex = 200,
                     },
                 }
@@ -285,15 +305,14 @@ lvim.plugins = {
                 desc = "Diagnostics (Trouble)",
             },
             {
-                "<leader>td",
+                "<leader>tp",
                 "<cmd>Trouble preview_float filter.buf=0<cr>",
                 desc = "Buffer Diagnostics (Trouble)",
-            },
-            {
-                "<leader>ts",
-                "<cmd>Trouble symbol_float<cr>",
-                desc = "Symbols (Trouble)",
-            },
+            }, {
+            "<leader>ts",
+            "<cmd>Trouble symbol_float<cr>",
+            desc = "Symbols (Trouble)",
+        },
             {
                 "<leader>cl",
                 "<cmd>Trouble lsp toggle focus=false win.position=right<cr>",
@@ -338,18 +357,26 @@ dap.configurations.c = dap.configurations.cpp
 
 
 --透明度
--- vim.g.neovide_transparency = 0.9
+vim.g.neovide_transparency = 0.60
+
+-- 非垂直同步 --no-vsync 时的刷新率
+vim.g.neovide_refresh_rate = 144
+vim.g.neovide_refresh_rate_idle = 3 -- 闲置刷新率
+-- vim.g.neovide_profiler = true
+
+
 -- cursor特效
 -- vim.g.neovide_cursor_vfx_mode = "railgun"
--- vim.g.neovide_cursor_vfx_particle_density = 50.0
--- vim.g.neovide_cursor_vfx_particle_phase = 1.5
--- vim.g.neovide_cursor_vfx_mode = "ripple"
+vim.g.neovide_cursor_vfx_particle_density = 100.0
+vim.g.neovide_scale_factor = 1.1
+vim.g.neovide_cursor_vfx_particle_phase = 1.5
+vim.g.neovide_cursor_vfx_mode = "pixiedust"
+-- vim.g.neovide_cursor_smooth_blink = true
 
 -- 抗锯齿
--- vim.g.neovide_cursor_antialiasing = true
+vim.g.neovide_cursor_antialiasing = true
 
-
-local lineLengthWarning = 80
+local lineLengthWarning = 60
 local lineLengthError = 120
 lvim.builtin.lualine.sections = {
     lualine_a = {},
@@ -371,8 +398,8 @@ lvim.builtin.lualine.inactive_sections = {
 
 -- Colours, maps and icons {{{2
 local colors = {
-    -- bg               = '#0f1117',
-    bg               = '#3f3f3f',
+    bg               = '#0f1117',
+    -- bg               = '#3f3f3f',
     modetext         = '#000000',
 
     giticonbg        = '#ffffff',
