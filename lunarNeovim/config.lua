@@ -45,6 +45,11 @@ vim.keymap.set("n", "<F5>", function()
 end)
 lvim.builtin.indentlines.active = true
 
+--@note: markdown
+vim.g.mkdp_echo_preview_url = true
+lvim.keys.normal_mode["<leader>mp"] = ":MarkdownPreview<CR>"
+lvim.keys.normal_mode["<leader>ms"] = ":MarkdownPreviewStop<CR>"
+
 vim.api.nvim_create_autocmd({ "filetype" }, {
     pattern = { "c", "cpp", "md", "txt", "c.snippets", "cpp.snippets" },
     callback = function()
@@ -57,6 +62,12 @@ vim.api.nvim_create_autocmd({ "filetype" }, {
 })
 
 lvim.plugins = {
+    {
+        "iamcco/markdown-preview.nvim",
+        cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
+        ft = { "markdown" },
+        build = function() vim.fn["mkdp#util#install"]() end,
+    },
     {
         "stevearc/conform.nvim",
         optional = true,
