@@ -1,5 +1,5 @@
 # ---
-# BasedOnStyle: 
+BasedOnStyle: Google 
 # ---
 Language: Cpp
 AccessModifierOffset: -2
@@ -18,8 +18,8 @@ AlignTrailingComments:
 AllowAllArgumentsOnNextLine: true
 # AllowAllConstructorInitializersOnNextLine: false
 AllowAllParametersOfDeclarationOnNextLine: true 
-AllowShortBlocksOnASingleLine: Empty 
-AllowShortCaseLabelsOnASingleLine: true
+AllowShortBlocksOnASingleLine: Never 
+AllowShortCaseLabelsOnASingleLine: false 
 # AllowShortFunctionsOnASingleLine: All
 # AllowShortLambdasOnASingleLine: All
 AllowShortIfStatementsOnASingleLine: WithoutElse
@@ -28,21 +28,21 @@ AllowShortIfStatementsOnASingleLine: WithoutElse
 # AlwaysBreakAfterReturnType: None
 AlwaysBreakBeforeMultilineStrings: false
 AlwaysBreakTemplateDeclarations: Yes
-BinPackArguments: false 
-BinPackParameters: false 
+BinPackArguments: true
+BinPackParameters: true
 BraceWrapping:
   # AfterCaseLabel: false
-  AfterClass: true
-  AfterControlStatement: Always
-  AfterEnum: true
-  AfterFunction: true
-  # AfterNamespace: false
+  AfterClass: false
+  AfterControlStatement: MultiLine 
+  AfterEnum: false
+  AfterFunction: false
+  AfterNamespace: false
   # AfterObjCDeclaration: false
-  AfterStruct: true
-  AfterUnion: true
+  AfterStruct: false
+  AfterUnion: false
   AfterExternBlock: true
-  BeforeCatch: true
-  BeforeElse: true
+  BeforeCatch: false
+  BeforeElse: true 
   # IndentBraces: false
   # SplitEmptyFunction: true
   # SplitEmptyRecord: true
@@ -62,7 +62,7 @@ CommentPragmas: "^ NOLINT:"
 # CompactNamespaces: false
 # ConstructorInitializerAllOnOneLineOrOnePerLine: true
 ConstructorInitializerIndentWidth: 4
-# ContinuationIndentWidth: 4
+ContinuationIndentWidth: 2
 # Cpp11BracedListStyle: true
 # DeriveLineEnding: true
 # DerivePointerAlignment: true
