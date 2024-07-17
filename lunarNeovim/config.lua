@@ -19,9 +19,9 @@ vim.keymap.set({ "n", "v" }, "<M-c>", ":close<cr>")
 vim.keymap.set({ "n", "v" }, "U", "<c-r>")
 
 -- @note: rust 运行调试
-lvim.keys.normal_mode["<TAB>rr"] = ":RustRun<CR>"
-lvim.keys.normal_mode["<TAB>rd"] = ":RustDebuggables<CR>"
-lvim.keys.normal_mode['<TAB>rl'] = ":RustRunnables<CR>"
+lvim.keys.normal_mode["<TAB>rr"] = ":RustLsp run<CR>"
+lvim.keys.normal_mode["<TAB>rd"] = ":RustLsp debuggables<CR>"
+lvim.keys.normal_mode['<TAB>rl'] = ":RustLsp runnables<CR>"
 
 --@note: go 运行调试
 lvim.keys.normal_mode["<TAB>gr"] = ":GoRun<CR>"
@@ -100,67 +100,9 @@ lvim.plugins = {
         build = ':lua require("go.install").update_all_sync()'
     },
     {
-        -- @note: 需要用mason安装codelldb
-        "simrat39/rust-tools.nvim",
-        config = function()
-            local status_ok, rust_tools = pcall(require, "rust-tools")
-            if not status_ok then
-                return
-            end
-
-            local opts = {
-                tools = {
-                    -- executor = require("rust-tools/executors").termopen, -- can be quickfix or termopen
-                    reload_workspace_from_cargo_toml = true,
-                    inlay_hints = {
-                        auto = true,
-                        only_current_line = false,
-                        show_parameter_hints = true,
-                        parameter_hints_prefix = "<-",
-                        other_hints_prefix = "=>",
-                        max_len_align = false,
-                        max_len_align_padding = 1,
-                        right_align = false,
-                        right_align_padding = 7,
-                        highlight = "Comment",
-                    },
-                    hover_actions = {
-                        border = {
-                            { "╭", "FloatBorder" },
-                            { "─", "FloatBorder" },
-                            { "╮", "FloatBorder" },
-                            { "│", "FloatBorder" },
-                            { "╯", "FloatBorder" },
-                            { "─", "FloatBorder" },
-                            { "╰", "FloatBorder" },
-                            { "│", "FloatBorder" },
-                        },
-                        auto_focus = true,
-                    },
-                },
-                server = {
-                    on_attach = require("lvim.lsp").common_on_attach,
-                    on_init = require("lvim.lsp").common_on_init,
-                    settings = {
-                        ["rust-analyzer"] = {
-                            checkOnSave = {
-                                command = "clippy"
-                            }
-                        }
-                    },
-                },
-            }
-            local extension_path = vim.fn.expand "~/" .. ".local/share/nvim/mason/packages/"
-
-            local codelldb_path = extension_path .. "codelldb/extension/adapter/codelldb"
-            local liblldb_path = extension_path .. "codelldb/extension/lldb/lib/liblldb.so"
-
-            opts.dap = {
-                adapter = require("rust-tools.dap").get_codelldb_adapter(codelldb_path, liblldb_path),
-            }
-            rust_tools.setup(opts)
-        end,
-        ft = { "rust", "rs" },
+        'mrcjkb/rustaceanvim',
+        version = '^4', -- Recommended
+        lazy = false,   -- This plugin is already lazy
     },
     {
         "navarasu/onedark.nvim",
@@ -217,6 +159,9 @@ lvim.plugins = {
             -- refer to the configuration section below
             sign_priority = 3,
             keywords = {
+                PERF = {
+                    alt = { "pefr", "param", "return" },
+                },
                 FIX = {
                     alt = { "FIXME", "BUG", "fix" },
                 },
@@ -305,6 +250,21 @@ lvim.plugins = {
                         size = { width = 0.5, height = 0.3 },
                         zindex = 200,
                     },
+                },
+                lsp_toggle_float = {
+                    focus = true,
+                    auto_close = true,
+                    mode = "lsp",
+                    preview = {
+                        type = "float",
+                        relative = "editor",
+                        border = "rounded",
+                        title = "Preview",
+                        title_pos = "center",
+                        position = { 2, 0.3 },
+                        size = { width = 0.5, height = 0.3 },
+                        zindex = 200,
+                    },
                 }
             },
         },
@@ -325,8 +285,8 @@ lvim.plugins = {
             desc = "Symbols (Trouble)",
         },
             {
-                "<leader>cl",
-                "<cmd>Trouble lsp toggle focus=false win.position=right<cr>",
+                "<leader>lt",
+                "<cmd>Trouble lsp_toggle_float toggle<cr>",
                 desc = "LSP Definitions / references / ... (Trouble)",
             },
             {
@@ -337,6 +297,8 @@ lvim.plugins = {
         },
     }
 }
+
+vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
 
 -- @note: 需要用mason安装codelldb
 local dap = require("dap")
@@ -366,9 +328,22 @@ dap.configurations.cpp = {
 }
 dap.configurations.c = dap.configurations.cpp
 
+vim.g.rustaceanvim = function()
+    -- Update this path
+    local extension_path = vim.fn.stdpath("data") .. '/mason/packages/codelldb/extension/'
+    local codelldb_path = extension_path .. '/adapter/codelldb'
+    local liblldb_path = extension_path .. '/lldb/lib/liblldb'
+
+    local cfg = require('rustaceanvim.config')
+    return {
+        dap = {
+            adapter = cfg.get_codelldb_adapter(codelldb_path, liblldb_path),
+        },
+    }
+end
 
 --透明度
-vim.g.neovide_transparency = 0.60
+vim.g.neovide_transparency = 0.76
 
 -- 非垂直同步 --no-vsync 时的刷新率
 vim.g.neovide_refresh_rate = 144
@@ -378,7 +353,7 @@ vim.g.neovide_refresh_rate_idle = 3 -- 闲置刷新率
 
 -- cursor特效
 -- vim.g.neovide_cursor_vfx_mode = "railgun"
-vim.g.neovide_cursor_vfx_particle_density = 100.0
+vim.g.neovide_cursor_vfx_particle_density = 80.0
 vim.g.neovide_scale_factor = 1.1
 vim.g.neovide_cursor_vfx_particle_phase = 1.5
 vim.g.neovide_cursor_vfx_mode = "pixiedust"
