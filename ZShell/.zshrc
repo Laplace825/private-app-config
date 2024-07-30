@@ -6,7 +6,7 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
 fi
 
 # If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:/usr/local/bin:$PATH
+# export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
@@ -78,12 +78,11 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
-    git
-    zsh-autosuggestions
-    zsh-syntax-highlighting
-    zsh-z
-    # zsh-nvm
-    )
+	git 
+	z 
+	zsh-syntax-highlighting	
+	zsh-autosuggestions
+)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -110,58 +109,31 @@ source $ZSH/oh-my-zsh.sh
 # For a full list of active aliases, run `alias`.
 #
 # Example aliases
-# alias zshconfig="mate ~/.zshrc"
-# alias ohmyzsh="mate ~/.oh-my-zsh"
+alias zshconfig="mate ~/.zshrc"
+alias ohmyzsh="mate ~/.oh-my-zsh"
+alias vim="lvim"
+alias nvim="lvim"
+alias vid="neovide --neovim-bin ${HOME}/.local/bin/lvim"
 
+export PATH=$HOME/.local/bin:$PATH
+export AM_HOME=$HOME/app/NJU_OS/os-workbench/abstract-machine
 
-source ~/powerlevel10k/powerlevel10k.zsh-theme
-source ~/powerlevel10k/powerlevel10k.zsh-theme
+set -o vi
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/home/lap/anaconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+__conda_setup="$('/home/lap/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
 if [ $? -eq 0 ]; then
     eval "$__conda_setup"
 else
-    if [ -f "/home/lap/anaconda3/etc/profile.d/conda.sh" ]; then
-        . "/home/lap/anaconda3/etc/profile.d/conda.sh"
+    if [ -f "/home/lap/miniconda3/etc/profile.d/conda.sh" ]; then
+        . "/home/lap/miniconda3/etc/profile.d/conda.sh"
     else
-        export PATH="/home/lap/anaconda3/bin:$PATH"
+        export PATH="/home/lap/miniconda3/bin:$PATH"
     fi
 fi
 unset __conda_setup
 # <<< conda initialize <<<
-
-# export NEMU_HOME=/home/lap/app/ICS/ics2023/nemu
-# export AM_HOME=/home/lap/app/ICS/ics2023/abstract-machine
-alias vim="lvim"
-export PATH=/usr/local/cuda-12.1/bin${PATH:+:${PATH}}
-export LD_LIBRARY_PATH=/usr/local/cuda-12.1/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
-export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/lib/pkgconfig
-. "$HOME/.cargo/env"
-export PATH="$HOME/.local/bin/":$PATH
-
-# 懒启动nvm
-# lazy_load_nvm() {
-#   unset -f node
-#   export NVM_DIR=~/.nvm
-#   [[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh"
-# }
-
-# node() {
-#   lazy_load_nvm
-#   node $@
-# }
-
-export NVM_DIR="$HOME/.nvm"
-[[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh" --no-use  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-# <<< Rustup 镜像源
-export RUSTUP_DIST_SERVER="https://rsproxy.cn"
-export RUSTUP_UPDATE_ROOT="https://rsproxy.cn/rustup"
-# >>>
-
