@@ -21,16 +21,37 @@
 LV_BRANCH='release-1.3/neovim-0.9' bash <(curl -s https://raw.githubusercontent.com/LunarVim/LunarVim/release-1.3/neovim-0.9/utils/installer/install.sh)
 ```
 
-+ 安装`neovide`
+## 安装`neovide`
 
-基于`Rust`
+### 基于`Rust`
 
++ 安装`Rust`
 ```bash
-curl --proto '=https' --tlsv1.2 -sSf "https://sh.rustup.rs" | sh
+export RUSTUP_DIST_SERVER="https://rsproxy.cn"
+export RUSTUP_UPDATE_ROOT="https://rsproxy.cn/rustup"
+
+curl --proto '=https' --tlsv1.2 -sSf https://rsproxy.cn/rustup-init.sh | sh
+```
++ 设置`crate.io`镜像[RsProxy](https://rsproxy.cn/)
+```bash
+# in ~/.cargo/config.toml
+[source.crates-io]
+replace-with = 'rsproxy-sparse'
+[source.rsproxy]
+registry = "https://rsproxy.cn/crates.io-index"
+[source.rsproxy-sparse]
+registry = "sparse+https://rsproxy.cn/index/"
+[registries.rsproxy]
+index = "https://rsproxy.cn/crates.io-index"
+[net]
+git-fetch-with-cli = true
+```
++ 源码编译安装`neovide`
+```bash
 cargo install --git https://github.com/neovide/neovide
 ```
 
-基于`snap`
+### 基于`snap`
 
 ```bash
 sudo apt install -y curl \
@@ -41,6 +62,12 @@ sudo apt install -y curl \
     libxcursor-dev
 
 ```
+
++ `.zshrc`添加
+```shell
+alias vid="neovide --neovim-bin ${HOME}/.local/bin/lvim"
+```
+
 
 ## Zshell
 
