@@ -1,16 +1,64 @@
-<!--
- * @Author: laplace825
- * @Date: 2024-04-29 19:56:21
- * @LastEditors: laplace825
- * @LastEditTime: 2024-04-29 20:54:12
- * @FilePath: /app_config/README.md
- * @Description: 
- * 
- * Copyright (c) 2024 by laplace825, All Rights Reserved. 
--->
 # private-neovim-config
 
 一些个人软件配置
+
+## Hyprland
+这里是直接使用[JaKooLit/Arch-Hyprland](https://github.com/JaKooLit/Arch-Hyprland)安装脚本，
+需要尽可能保持干净的系统环境再进行安装。
+
++ `waybar`配置修改
+```css
+/* 
+note: add blowing in ~/.config/waybar/wallust/colors-waybar.css
+*/
+* {
+    font-family: "JetBrainsMono Nerd Font";
+    font-weight: bold;
+    min-height: 14px;
+    /* set font-size to 100% if font scaling is set to 1.00 using nwg-look */
+    font-size: 17px;
+    font-feature-settings: '"zero", "ss01", "ss02", "ss03", "ss04", "ss05", "cv31"';
+}
+
+```
+
+## Zshell
+
++ 安装`zsh`
+```bash
+## debian like
+# 更新软件源
+sudo apt update && sudo apt upgrade -y
+# 安装 zsh git curl
+sudo apt install zsh git
+curl -y
+
+## arch like
+sudo pacman -Syu
+sudo pacman -Sy git zsh
+```
+
++ 安装`oh-my-zsh`
+
+```bash
+sh -c "$(wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"
+
+# 国内源
+sh -c "$(wget -O- https://gitee.com/pocmon/ohmyzsh/raw/master/tools/install.sh)"
+```
+
++ 安装`powerlevel10k`
+
+```bash
+git clone --depth=1 https://gitee.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+```
+
++ 安装CLI工具
+
+```bash
+## arch like
+sudo pacman -Sy eza fastfetch fzf fd bat
+```
 
 ## lunarNeovm
 
@@ -60,37 +108,18 @@ sudo apt install -y curl \
     libfreetype6-dev libasound2-dev libexpat1-dev libxcb-composite0-dev \
     libbz2-dev libsndio-dev freeglut3-dev libxmu-dev libxi-dev libfontconfig1-dev \
     libxcursor-dev
-
 ```
 
-+ `.zshrc`添加
-```shell
-alias vid="neovide --neovim-bin ${HOME}/.local/bin/lvim"
-```
-
-
-## Zshell
-
-+ 安装`zsh`
-```bash
-# 更新软件源
-sudo apt update && sudo apt upgrade -y
-# 安装 zsh git curl
-sudo apt install zsh git
-curl -y
-```
-
-+ 安装`oh-my-zsh`
+### archlinux 
 
 ```bash
-sh -c "$(wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"
-
-# 国内源
-sh -c "$(wget -O- https://gitee.com/pocmon/ohmyzsh/raw/master/tools/install.sh)"
+sudo pacmans -Sy neovide
 ```
 
-+ 安装`powerlevel10k`
+### `.zshrc`添加
 
 ```bash
-git clone --depth=1 https://gitee.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+alias vide="neovide --neovim-bin ${HOME}/.local/bin/lvim"
 ```
+
+

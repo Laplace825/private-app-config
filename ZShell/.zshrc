@@ -78,10 +78,11 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
-	git 
-	z 
-	zsh-syntax-highlighting	
-	zsh-autosuggestions
+	git
+	zsh-autosuggestions 
+	zsh-syntax-highlighting
+	#archlinux
+	z
 )
 
 source $ZSH/oh-my-zsh.sh
@@ -91,7 +92,7 @@ source $ZSH/oh-my-zsh.sh
 # export MANPATH="/usr/local/man:$MANPATH"
 
 # You may need to manually set your language environment
-# export LANG=en_US.UTF-8
+export LANG=zh_CN.UTF-8
 
 # Preferred editor for local and remote sessions
 # if [[ -n $SSH_CONNECTION ]]; then
@@ -102,6 +103,11 @@ source $ZSH/oh-my-zsh.sh
 
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
+export PATH="$HOME/.local/bin:$PATH"
+export PATH=$PATH:/usr/local/go/bin
+export https_proxy=http://127.0.0.1:7897
+export http_proxy=http://127.0.0.1:7897
+export all_proxy=socks5://127.0.0.1:7897
 
 # Set personal aliases, overriding those provided by oh-my-zsh libs,
 # plugins, and themes. Aliases can be placed here, though oh-my-zsh
@@ -111,14 +117,24 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 alias zshconfig="mate ~/.zshrc"
 alias ohmyzsh="mate ~/.oh-my-zsh"
-alias vim="lvim"
-alias nvim="lvim"
-alias vid="neovide --neovim-bin ${HOME}/.local/bin/lvim"
 
-export PATH=$HOME/.local/bin:$PATH
-export AM_HOME=$HOME/app/NJU_OS/os-workbench/abstract-machine
+# note: eza to subtitute cd
+alias ls="eza --icons=always --no-user"
+alias ll="ls -lah"
+alias l="ls -lah"
+alias tree="eza --tree"
 
-set -o vi
+# note: bat to subtitute cat
+alias cat="bat"
+
+# note: kitty terminal
+alias show-pic="kitty +kitten icat"
+
+# note: neovide alias to use lvim
+alias vide="neovide --neovim-bin lvim"
+
+# bat theme 
+export BAT_THEME=OneHalfDark
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
@@ -137,3 +153,33 @@ else
 fi
 unset __conda_setup
 # <<< conda initialize <<<
+
+# Now We can use <C-t> to match dirs better
+# <Alt-c> match file better
+eval "$(fzf --zsh)"
+
+export FZF_DEFAULT_COMMAND="fd --hidden --strip-cwd-prefix --exclude .git"
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_ALT_C_COMMAND="fd --type=d --hidden --strip-cwd-prefix --exclude .git"
+
+_fzf_compgen_path(){
+    fd --hidden --exclude .git . "$1"
+}
+
+_fzf_compgen_dir(){
+    fd --type=d --hidden --exclude .git . "$1"
+}
+
+export FZF_CTRL_T_OPTS="--preview 'bat -n --color=always --line-range :500 {}'"
+export FZF_ALT_C_OPTS="--preview 'eza --tree --color=always {} | head -200'"
+
+_fzf_comprun(){
+    local command=$1
+    shift
+
+    case "$command" in 
+        cd) fzf --preview 'eza --tree --color=always {} | head -200' "$@" ;;
+        export|unset) fzf --preview "eval 'echo \$' {}"      "$@" ;;
+        *) fzf --preview "--preview 'bat -n --color=always --line-range :500 {}'" "$@" ;;
+    esac
+}
