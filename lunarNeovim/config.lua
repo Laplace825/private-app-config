@@ -7,8 +7,8 @@
 lvim.transparent_window = false
 -- lvim.builtin.lualine.options.theme = "onedarker"
 local lualine_config_self = false
-lvim.colorscheme = "onedark"
--- lvim.colorscheme = "tokyonight-moon"
+-- lvim.colorscheme = "onedark"
+lvim.colorscheme = "tokyonight-moon"
 
 vim.opt.guifont = "FiraCode Nerd Font:h14"
 vim.opt.tabstop = 4
