@@ -5,10 +5,14 @@
 -- Discord: https://discord.com/invite/Xb9B4Ny
 
 -- @note: 将当前目录加入到package.path中
-package.path = package.path .. ";./conf/?.lua"
-require("conf.neovide")
-lvim.plugins = require("conf.plugins")
-require("conf.dap")
+-- @note: 必须定义环境变量 MY_LVIM_CONFIG_FOLDER
+-- @note: 例如：export MY_LVIM_CONFIG_FOLDER=$HOME/.config/lvim
+local include_path = ";" .. os.getenv("MY_LVIM_CONFIG_FOLDER") .. "/conf/?.lua"
+-- package.path = package.path ..
+package.path = package.path .. include_path
+require("vide")
+lvim.plugins = require("plugins")
+require("dap")
 
 lvim.transparent_window = false
 -- lvim.builtin.lualine.options.theme = "onedarker"
@@ -19,7 +23,7 @@ vim.opt.guifont = "FiraCode Nerd Font Ret:h13"
 vim.opt.tabstop = 4
 vim.opt.fileencoding = "utf-8"
 vim.opt.relativenumber = true
--- lvim.format_on_save = true
+lvim.format_on_save = true
 
 
 vim.keymap.set({ "n", "v" }, "<M-v>", ":vsplit<cr>")
@@ -132,29 +136,29 @@ lvim.lsp.installer.setup.automatic_installation = {
     exclude = { "rust_analyzer", "rust-analyzer" }
 }
 
-require("markview").setup({
-  modes = { "n", "no", "c" },   -- Change these modes
-  -- to what you need
+-- require("markview").setup({
+--   modes = { "n", "no", "c" }, -- Change these modes
+--   -- to what you need
 
-  hybrid_modes = { "n" },   -- Uses this feature on
-  -- normal mode
+--   hybrid_modes = { "n" }, -- Uses this feature on
+--   -- normal mode
 
-  -- This is nice to have
-  callbacks = {
-    on_enable = function(_, win)
-      vim.wo[win].conceallevel = 2;
-      vim.wo[win].concealcursor = "c";
-    end
-  }
-})
+--   -- This is nice to have
+--   callbacks = {
+--     on_enable = function(_, win)
+--       vim.wo[win].conceallevel = 2;
+--       vim.wo[win].concealcursor = "c";
+--     end
+--   }
+-- })
 
-require("venv-selector").setup {
-  settings = {
-    search = {
-      anaconda_base = {
-        command = "fd /python$ /home/lap/miniconda3/bin --full-path --color never -E /proc",
-        type = "anaconda"
-      },
-    },
-  },
-}
+-- require("venv-selector").setup {
+--   settings = {
+--     search = {
+--       anaconda_base = {
+--         command = "fd /python$ /home/lap/miniconda3/bin --full-path --color never -E /proc",
+--         type = "anaconda"
+--       },
+--     },
+--   },
+-- }
