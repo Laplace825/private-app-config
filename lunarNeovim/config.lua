@@ -5,17 +5,17 @@
 -- Discord: https://discord.com/invite/Xb9B4Ny
 
 -- @note: 将当前目录加入到package.path中
-package.path = package.path .. ";./"
+package.path = package.path .. ";./conf/?.lua"
 require("conf.neovide")
-require("conf.plugins")
+lvim.plugins = require("conf.plugins")
 require("conf.dap")
 
 lvim.transparent_window = false
 -- lvim.builtin.lualine.options.theme = "onedarker"
 -- lvim.colorscheme = "onedark"
--- lvim.colorscheme = "tokyonight-moon"
+lvim.colorscheme = "tokyonight-moon"
 
-vim.opt.guifont = "FiraCode Nerd Font:h14"
+vim.opt.guifont = "FiraCode Nerd Font Ret:h13"
 vim.opt.tabstop = 4
 vim.opt.fileencoding = "utf-8"
 vim.opt.relativenumber = true
@@ -130,4 +130,31 @@ lvim.lsp.installer.setup.ensure_installed = {
 vim.list_extend(lvim.lsp.automatic_configuration.skipped_servers, { "rust_analyzer" })
 lvim.lsp.installer.setup.automatic_installation = {
     exclude = { "rust_analyzer", "rust-analyzer" }
+}
+
+require("markview").setup({
+  modes = { "n", "no", "c" },   -- Change these modes
+  -- to what you need
+
+  hybrid_modes = { "n" },   -- Uses this feature on
+  -- normal mode
+
+  -- This is nice to have
+  callbacks = {
+    on_enable = function(_, win)
+      vim.wo[win].conceallevel = 2;
+      vim.wo[win].concealcursor = "c";
+    end
+  }
+})
+
+require("venv-selector").setup {
+  settings = {
+    search = {
+      anaconda_base = {
+        command = "fd /python$ /home/lap/miniconda3/bin --full-path --color never -E /proc",
+        type = "anaconda"
+      },
+    },
+  },
 }
