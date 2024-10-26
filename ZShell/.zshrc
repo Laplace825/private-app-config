@@ -15,7 +15,7 @@ export ZSH="$HOME/.oh-my-zsh"
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-ZSH_THEME="powerlevel10k"
+ZSH_THEME="spaceship"
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -82,20 +82,21 @@ plugins=(
 	zsh-autosuggestions 
 	zsh-syntax-highlighting
 	#archlinux
-	z
+    vi-mode
 )
 
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
 
-# export MANPATH="/usr/local/man:$MANPATH"
+export MANPATH="/usr/local/man:$MANPATH"
 
 # You may need to manually set your language environment
 export LANG=zh_CN.UTF-8
 export GTK_IM_MODULE=fcitx
 export QT_IM_MODULE=fcitx
 export XMODIFIERS=@im=fcitx
+export ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 
 # Preferred editor for local and remote sessions
 # if [[ -n $SSH_CONNECTION ]]; then
@@ -111,6 +112,18 @@ export PATH=$PATH:/usr/local/go/bin
 export https_proxy=http://127.0.0.1:7897
 export http_proxy=http://127.0.0.1:7897
 export all_proxy=socks5://127.0.0.1:7897
+export MY_LVIM_CONFIG_FOLDER="$HOME/.config/lvim"
+
+# rustup 镜像
+export RUSTUP_DIST_SERVER="https://rsproxy.cn"
+export RUSTUP_UPDATE_ROOT="https://rsproxy.cn/rustup"
+
+# Add user py env
+export PATH="$PATH:$HOME/usr_pyenv/bin/"
+source $HOME/usr_pyenv/bin/activate
+
+# completion for pipx
+eval "$(register-python-argcomplete pipx)"
 
 # Set personal aliases, overriding those provided by oh-my-zsh libs,
 # plugins, and themes. Aliases can be placed here, though oh-my-zsh
@@ -128,29 +141,15 @@ alias show-pic="kitty +kitten icat"
 alias tree="eza --tree --ignore-glob .git"
 alias vide="neovide --neovim-bin lvim"
 
+# ctrl+/ to accept autosuggest
+bindkey "^_" autosuggest-accept
+
 # bat theme 
 export BAT_THEME=OneHalfDark
-
-# note: set to vi mode
-set -o vi
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/home/lap/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
-else
-    if [ -f "/home/lap/miniconda3/etc/profile.d/conda.sh" ]; then
-        . "/home/lap/miniconda3/etc/profile.d/conda.sh"
-    else
-        export PATH="/home/lap/miniconda3/bin:$PATH"
-    fi
-fi
-unset __conda_setup
-# <<< conda initialize <<<
 
 # Now We can use <C-t> to match dirs better
 # <Alt-c> match file better
@@ -195,3 +194,23 @@ function show-wall(){
     local file=$(echo $files | fzf --preview "kitty +kitten icat {}" --preview-window=down)
     kitty +kitten icat $file
 }
+
+# yazi file manager
+function y() {
+	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+	yazi "$@" --cwd-file="$tmp"
+	if cwd="$(command cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+		builtin cd -- "$cwd"
+	fi
+	rm -f -- "$tmp"
+}
+
+# Add default node to path
+export PATH=$PATH:$HOME/.nvm/versions/node/v22.7.0/bin
+
+# load nvm
+export NVM_DIR="$HOME/.nvm"
+[[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh" --no-use
+
+# the z jump tool
+eval "$(zoxide init zsh)"

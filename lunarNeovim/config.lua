@@ -19,6 +19,7 @@ package.path = package.path .. include_path
 require("vide")
 lvim.plugins = require("plugins")
 require("dap")
+require("laplsp")
 
 lvim.transparent_window = false
 -- lvim.builtin.lualine.options.theme = "onedarker"
@@ -29,7 +30,7 @@ vim.opt.guifont = "FiraCode Nerd Font Ret:h13"
 vim.opt.tabstop = 4
 vim.opt.fileencoding = "utf-8"
 vim.opt.relativenumber = true
-lvim.format_on_save = true
+-- lvim.format_on_save = true
 
 
 vim.keymap.set({ "n", "v" }, "<M-v>", ":vsplit<cr>")
@@ -86,7 +87,6 @@ vim.api.nvim_create_autocmd('ModeChanged', {
     end
 })
 
--- 创建build.nvim 目录
 -- 在创建之前判断是否存在，存在则不创建，不存在则创建
 vim.api.nvim_create_user_command('CPPRun', function()
     -- 判断当前路径是否存在build目录
@@ -94,14 +94,36 @@ vim.api.nvim_create_user_command('CPPRun', function()
     if vim.fn.isdirectory(path) == 0 then
         vim.fn.mkdir(path, 'p')
     end
-    --  进入build目录执行cmake
-    vim.cmd('cd ' .. path)
-    vim.cmd('!cmake .. -G Ninja')
-    vim.cmd('!ninja -j12')
+    local buf = vim.api.nvim_create_buf(false, true)
+    -- 将build信息输出到新建的buffer中
+    local build_command = {
+        'cmake . -B build -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_CXX_COMPILER=clang++',
+        'ninja -C build -j 12 -v',
+    }
+    local run_command = {
+        'pushd ' .. path,
+        './' .. vim.fn.expand('%:t:r'),
+        "popd"
+    }
+    vim.fn.system(table.concat(build_command, ' && '))
+    local run_command_msg = vim.fn.system(table.concat(run_command, ' && '))
+    local content = {}
+    for line in run_command_msg:gmatch("[^\r\n]+") do
+        table.insert(content, line)
+    end
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, content)
 
-    vim.cmd('!./' .. vim.fn.expand('%:t:r'))
-    -- 执行完毕后返回原路径
-    vim.cmd('!cd -')
+    -- Open a new window below and set it to our buffer
+    vim.api.nvim_open_win(buf, true, {
+        relative = 'win',
+        row = vim.api.nvim_win_get_height(0) + 1,
+        col = 0,
+        width = vim.api.nvim_win_get_width(0),
+        height = 10,
+        border = "rounded",
+        title = ('C++ Running Output: %s'):format(vim.fn.expand('%:t:r')),
+        title_pos = 'center',
+    })
 end, {
     desc = { 'Run C++ code',
     },
@@ -126,6 +148,7 @@ vim.api.nvim_create_user_command('PyRun', function()
 
     -- Prepare the content for the buffer
     local content = {}
+    table.insert(content, ('Running %s:'):format(vim.fn.expand('%:t')))
     for line in output:gmatch("[^\r\n]+") do
         table.insert(content, line)
     end
@@ -135,14 +158,8 @@ vim.api.nvim_create_user_command('PyRun', function()
 
     -- Open a new window below and set it to our buffer
     vim.api.nvim_open_win(buf, true, {
-        relative = 'win',
-        row = vim.api.nvim_win_get_height(0) + 1,
-        col = 0,
-        width = vim.api.nvim_win_get_width(0),
+        split = 'below',
         height = 10,
-        border = "rounded",
-        title = ('Python Output: %s'):format(file_path),
-        title_pos = 'center',
     })
     -- Set buffer options
     vim.api.nvim_buf_set_option(buf, 'modifiable', false)
@@ -153,39 +170,52 @@ end, {
     },
 })
 
--- @note: 这是内置lsp代码hint
-vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
+-- using glow to preview markdown file
+vim.api.nvim_create_user_command('GlowMarkdown', function()
+    -- Get the current buffer's file path
+    local file_path = vim.fn.expand('%:p')
 
-local telescopebuiltin = require('telescope.builtin')
+    -- Check if the current file is a Markdown file
+    if vim.fn.expand('%:e') ~= 'md' then
+        vim.notify("Current file is not a Markdown file.", vim.log.levels.ERROR)
+        return
+    end
 
-local function on_attach(client, bufnr)
-    local bufopts = { noremap = true, silent = true, buffer = bufnr }
-    vim.keymap.set('n', 'gd', function() telescopebuiltin.lsp_definitions { fname_width = 0.4 } end, bufopts) -- 跳转定义
-    vim.keymap.set('n', 'gr', function() telescopebuiltin.lsp_references { fname_width = 0.4 } end, bufopts)  -- 查找引用
-    vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' },
-        { callback = vim.lsp.buf.document_highlight, buffer = bufnr })                                        -- 光标不动时高亮变量名
-    vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' },
-        { callback = vim.lsp.buf.clear_references, buffer = bufnr })                                          -- 移动光标时清除高亮
-end
+    -- open a new window right side
+    vim.cmd('vnew')
 
-require("lspconfig").clangd.setup({
-    on_attach = on_attach,
-    cmd = { "/usr/bin/clangd", "--background-index", "--header-insertion=never", "--offset-encoding=utf-16" },
-    filetypes = { "c", "cpp", "cuda", "proto", "objc", "objcpp" },
-    root_dir = require("lspconfig/util").root_pattern("compile_commands.json", "compile_flags.txt", ".git", ".clangd",
-        ".clang-tidy", ".clang-format"),
-    single_file_support = true,
+    -- preview in real time using glow
+    vim.fn.termopen('glow ' .. vim.fn.shellescape(file_path))
+
+end, {
+    desc = { 'Preview Markdown file Using glow',
+    },
 })
 
-lvim.lsp.automatic_servers_installation = false
-lvim.lsp.installer.setup.ensure_installed = {
-    "html"
-}
 
-vim.list_extend(lvim.lsp.automatic_configuration.skipped_servers, { "rust_analyzer" })
-lvim.lsp.installer.setup.automatic_installation = {
-    exclude = { "rust_analyzer", "rust-analyzer", "pyright" }
-}
+-- @note: 这是内置lsp代码hint
+-- @note: 通过按键 <Space>nh 来开启或关闭
+vim.keymap.set({ "n", "v" }, "<Space>nh", "<cmd>lua vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())<CR>")
+-- vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
+
+
+
+-- Autocmds are automatically loaded on the VeryLazy event
+-- Default autocmds that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/autocmds.lua
+-- Add any additional autocmds here
+vim.api.nvim_create_autocmd(
+    {
+        "BufNewFile",
+        "BufRead",
+    },
+    {
+        pattern = "*.typ",
+        callback = function()
+            local buf = vim.api.nvim_get_current_buf()
+            vim.api.nvim_buf_set_option(buf, "filetype", "typst")
+        end
+    }
+)
 
 require("markview").setup({
     modes = { "n", "no", "c" }, -- Change these modes
